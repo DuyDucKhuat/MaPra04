@@ -12,7 +12,7 @@ int main(){
     const unsigned int AnzahlZeilen = 10;
     const unsigned int AnzahlSpalten = 10;
     Start(1);
-    NaechsterZug(4);
-    
+   int a =  NaechsterZug(4);
+     
     return 0;
 };
