@@ -394,7 +394,7 @@ double heuristik2(Vector<size_t> stand, int count, int c, int spieler, vector<do
     }
     return res;
 }
-size_t minimum (vector<double>& Werte, int type)    // type = 0 sucht Spalte mit mininmalen Wert,
+size_t minmax (vector<double>& Werte, int type)    // type = 0 sucht Spalte mit mininmalen Wert,
                                                     // type = 1 sucht Spalte mit maximalen Wert.
 {
     size_t res;
