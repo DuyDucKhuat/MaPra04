@@ -246,7 +246,7 @@ size_t MinAlgorithmus(vector<size_t> stand, double& min, int spieler, int type, 
             }
             break;
     }
-    if( alleGleich(Werte) ) return cols/2; 
+    if( alleGleich(Werte) ) return cols/2;
     return minI;
 }
 
@@ -374,7 +374,7 @@ double heuristik2(Vector<size_t> stand, int count, int c, int spieler, vector<do
         case 2:
             size_t I = MaxAlgorithmus(stand, max,spieler, 1, c, Werte);                     //SP ist dran
             I = minmax (Werte,1);
-            (*this)(I,r) = spieler;                                                  //für spieler 1 ist das gleich 2 und für spieler 2 ist das gleich 1.
+            (*this)(I,r) = spieler;
             stand[I]++;
             res = heuristik2(stand, count -1, I, spieler);
             stand[I]--;
