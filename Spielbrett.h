@@ -15,7 +15,7 @@
 class Spielbrett{
     private:
     std::vector<int> Brett;
-    std::vector< size_t > Stand; //Stand[col] enthält den Stand (Höhe) der Spalte col.
+    std::vector<size_t> Stand; //Stand[col] enthält den Stand (Höhe) der Spalte col.
     size_t cols, rows;
 
     
@@ -25,7 +25,7 @@ class Spielbrett{
     explicit Spielbrett (size_t cols, size_t rows);
     ~Spielbrett() {};
     int& operator() (size_t col, size_t r);
-    void Spielbrett::zug(size_t col, size_t spieler); //setzt den Zug falls möglich, aktualisiert den Stand.
+    void zug(size_t col, size_t spieler); //setzt den Zug falls möglich, aktualisiert den Stand.
     
     int zähleVert(size_t c, size_t r);
     int zähleHo(size_t c, size_t r);
@@ -39,6 +39,7 @@ class Spielbrett{
     size_t minAlgorithmus(int recursion, size_t& minI);
     
     bool umgebungNull(size_t c);
+    template <typename T>
     bool alleGleich (std::vector <T> Werte);
     double feldabschnitt( size_t c, size_t r, int type);
 

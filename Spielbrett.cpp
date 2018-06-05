@@ -17,7 +17,7 @@ Spielbrett::Spielbrett(size_t cols, size_t rows){
     std::vector<int> vec(cols*rows,0);
     Brett = vec;
     std::vector<size_t> vec2(cols,0);
-    Stand = vec2;    
+    Stand = vec2;
 }
 
 // ============================================================================================
@@ -25,7 +25,7 @@ Spielbrett::Spielbrett(size_t cols, size_t rows){
 // ============================================================================================
 
 //setzt den Zug und aktualisiert Stand[col]. Gibt an, ob jemand gewonnen hat
-void Spielbrett::zug(size_t col, size_t spieler, bool& ende){
+void Spielbrett::zug(size_t col, size_t spieler){
     if (Stand[col] == rows){
         std::cout << " ungültiger Zug, bitte wähle eine andere Spalte, Spalte ist bereits voll " << std::endl;
     }else{
@@ -35,10 +35,6 @@ void Spielbrett::zug(size_t col, size_t spieler, bool& ende){
             Brett[col*rows + Stand[col]] = 2;
         }
         Stand[col]++; //aktualisiere Stand.
-        if( checkLine (0,col,Stand[col]) || checkLine (1,col,Stand[col]) || checkLine (2,col,Stand[col])){
-            // Annahme ist, dass vorher das Spiel noch nicht zu einem Ende gekommen ist. Deswegen hat hier der ziehende Spieler gewonnen.
-            ende = true;
-        }
     }
 }
 
@@ -56,7 +52,7 @@ int& Spielbrett::operator () (size_t c, size_t r) //Zugriffsoperator auf das Bre
 //                      CHECK LINE
 // ############################################################################################################
 
-int zähleVert(size_t c, size_t r) // zählt in beide Richtungen vertikal.
+int Spielbrett::zähleVert(size_t c, size_t r) // zählt in beide Richtungen vertikal.
 {
     size_t i = r;
     int sum = 1;
@@ -74,7 +70,7 @@ int zähleVert(size_t c, size_t r) // zählt in beide Richtungen vertikal.
     }
     return sum;
 }
-int zähleHo(size_t c, size_t r) // zählt in beide Richtungen horizontal.
+int Spielbrett::zähleHo(size_t c, size_t r) // zählt in beide Richtungen horizontal.
 {
     size_t i = c;
     int sum = 1;
@@ -94,7 +90,7 @@ int zähleHo(size_t c, size_t r) // zählt in beide Richtungen horizontal.
     return sum;
 }
 
-int zähleDiagR( size_t c, size_t r) //Diagonale in beide Richtungen von unten links nach oben rechts.
+int Spielbrett::zähleDiagR( size_t c, size_t r) //Diagonale in beide Richtungen von unten links nach oben rechts.
 
 {
     int player = (*this)(c,r);
@@ -114,7 +110,7 @@ int zähleDiagR( size_t c, size_t r) //Diagonale in beide Richtungen von unten l
     return sum;
 }
 
-int zähleDiagL( size_t c, size_t r) // Diagonale in beide Richtungen von oben links nach unten rechts.
+int Spielbrett::zähleDiagL( size_t c, size_t r) // Diagonale in beide Richtungen von oben links nach unten rechts.
 {
     size_t d =0;
     int player = (*this)(c,r);
@@ -155,12 +151,10 @@ bool Spielbrett::checkLine(int type, size_t c, size_t r)
 
 
 
-
-
 //##############################################################################################################
 //              Maximumalgorithmus
 //##################################################################################################################
-double wertung(size_t c){
+double Spielbrett::wertung(size_t c){
     double res = 0;
     for ( int i = 0; i < cols-3 ; i++){ //vertikal
         for ( int j = 0; j < rows; j++){
@@ -172,32 +166,32 @@ double wertung(size_t c){
     }
     return res;
 }
-size_t nächsterZug(){ //für Spieler 1
+size_t Spielbrett::nächsterZug(){ //für Spieler 1
     size_t res;
     maxAlgorithmus (4,res);
     return res;
 }
-size_t maxAlgorithmus(int recursion, size_t& maxI)
+size_t Spielbrett::maxAlgorithmus(int recursion, size_t& maxI)
 {
     double heur;
     double max = -1.;
-    for ( size_t i = 0; i < cols){
+    for ( size_t i = 0; i < cols; i++){
         if (Stand[i] != rows){
             (*this)(i,Stand[i]) = 1;
             Stand[i]++;
-            if(checkLine(0,c,Stand[i]-1) || checkLine(1,c,Stand[i]-1) || checkLine(2,c,Stand[i]-1)){
+            if(checkLine(0,i,Stand[i]-1) || checkLine(1,i,Stand[i]-1) || checkLine(2,i,Stand[i]-1)){
                 heur = 1.;
             }
             else if(umgebungNull(i)){
                 heur =0.;
             }else{
-                if ( recursion > 1) heur = minAlgorithmus(recursion - 1);
+                if ( recursion > 1) heur = minAlgorithmus(recursion - 1, maxI);
                 else heur = wertung(i);
             }
             (*this)(i,Stand[i]) = 0;
             Stand[i]--;
         }
-        if (heur > min){
+        if (heur > max){
             max = heur;
             maxI = i;
         }
@@ -205,19 +199,19 @@ size_t maxAlgorithmus(int recursion, size_t& maxI)
     return max;
 }
 
-size_t minAlgorithmus(int recursion, size_t& minI)
+size_t Spielbrett::minAlgorithmus(int recursion, size_t& minI)
 {
     double heur;
     double min = 2.;
-    for ( size_t i = 0; i < cols){
+    for ( size_t i = 0; i < cols; i++){
         if (Stand[i] != rows){
             (*this)(i,Stand[i]) = 2;
             Stand[i]++;
-            if(checkLine(0,c,Stand[i]-1) || checkLine(1,c,Stand[i]-1) || checkLine(2,c,Stand[i]-1)){
+            if(checkLine(0,i,Stand[i]-1) || checkLine(1,i,Stand[i]-1) || checkLine(2,i,Stand[i]-1)){
                 heur = -.1;
             }
             else{
-                if ( recursion > 1) heur = maxAlgorithmus(recursion - 1);
+                if ( recursion > 1) heur = maxAlgorithmus(recursion - 1, minI);
                 else heur = wertung(i);
             }
             Stand[i]--;
@@ -236,14 +230,14 @@ size_t minAlgorithmus(int recursion, size_t& minI)
 //                  HILFSFUNKTIONEN
 //##################################################################################################################
 
-bool umgebungNull(size_t c){
+bool Spielbrett::umgebungNull(size_t c){
     size_t r = Stand[c-1];
-    vector <int> Umgebung = {zähleVert(c,r),zähleHo(c,r),zähleR(c,r),zähleL(c,r)}; // enthält die Anzahl der gleichfarbigen direkten Nachbarsteine ( direkt heißt, es gibt keine dazwischenliegenden Steine)
-    return Umgebung[0] < 2) && Umgebung[1] <2) && Umgebung[2] <2) && Umgebung[3]<2
+    std::vector <int> Umgebung = {zähleVert(c,r),zähleHo(c,r),zähleDiagR(c,r),zähleDiagL(c,r)}; // enthält die Anzahl der gleichfarbigen direkten Nachbarsteine ( direkt heißt, es gibt keine dazwischenliegenden Steine)
+    return ((Umgebung[0] < 2) && (Umgebung[1] <2) && (Umgebung[2] <2) && (Umgebung[3]<2));
 }
 //überprüft, ob alle Werte gleich sind, in diesem Fall wird zufällig ein Zug gewählt.
-tepmplate <Typename T>
-bool alleGleich (std::vector <T> Werte){
+template <typename T>
+bool Spielbrett::alleGleich (std::vector <T> Werte){
     bool res = true;
     double start = Werte[0];
     for ( int i = 1; i  < Werte.size(); i++){
@@ -255,26 +249,27 @@ bool alleGleich (std::vector <T> Werte){
 }
 
 
-double feldabschnitt( size_t c, size_t r, int type)
+double Spielbrett::feldabschnitt( size_t c, size_t r, int type)
 {
     int ersterStein = -1; // defaultWert
     int count = 0;
+    std::vector <int> vec;
+
 
     switch ( type){ // es steht vier Mal fast das Gleiche da.
         case 0: //vertikal von (c,r) ausgehend.
             if( c > cols -3 ) std::cout << "kein möglicher feldabschnitt. 0" << std::endl;
-            
-            vector <int> vec = {(*this)(c,r),(*this)(c+1,r),(*this)(c+2,r),(*this)(c+3,r)};
-            bool alleGleich = alleGleich(vec);
-            if ( alleGleich && vec[0] == 0)  return 0.; //alle vier Felder sind unbesetzt.
+            vec = {(*this)(c,r),(*this)(c+1,r),(*this)(c+2,r),(*this)(c+3,r)};
+            if ( alleGleich(vec) && vec[0] == 0)  return 0.; //alle vier Felder sind unbesetzt.
             for( int i = 0; i < 4; i++){
-                if ( (*this)(c+i,r) !=0 && ersterStein == -1 ) ersterStein = (*this)(c+i,r);
-                if( (*this(c+i,r) != 0)  && ersterStein != (*this(c+i,r)) return 0.;
+                if (( (*this)(c+i,r) !=0) && (ersterStein == -1 )) ersterStein = (*this)(c+i,r);
+                
+                if( ((*this)(c+i,r) != 0)  && (ersterStein != (*this)(c+i,r))) return 0.;
             }
             //jetzt der Fall in dem keine unterschiedlichen Farben enthalten sind.
-            int count = 1;
+            
             for( int i = 0; i < 4; i++){
-                if ( ersterStein == (*this(c+i,r) ) count++;
+                if ( ersterStein == (*this)(c+i,r) ) count++;
             }
             switch (count){
                 case 1:
@@ -293,15 +288,14 @@ double feldabschnitt( size_t c, size_t r, int type)
             break;
         case 1: // horizontal
                 if( r >= 3) std::cout << "kein möglicher feldabschnitt. 1" << std::endl;
-                vector <int> vec = {(*this)(c,r),(*this)(c,r-1),(*this)(c,r-2),(*this)(c,r-3)};
-                bool alleGleich = alleGleich(vec);
-                if( alleGleich && vec[0] == 0) return 0.
+                vec = {(*this)(c,r),(*this)(c,r-1),(*this)(c,r-2),(*this)(c,r-3)};
+                if( alleGleich(vec) && vec[0] == 0) return 0.;
                 for( int i = 0; i < 4; i++){
-                    if ( (*this)(c,r-i) !=0 && ersterStein == -1 ) ersterStein = (*this)(c,r-i);
-                    if( (*this(c,r-i) != 0)  && ersterStein != (*this(c,r-i)) return 0.;
+                    if ( ( (*this)(c,r-i) !=0) && (ersterStein == -1 )) ersterStein = (*this)(c,r-i);
+                    if( ((*this)(c,r-i) != 0)  && (ersterStein != (*this)(c,r-i))) return 0.;
                 }
                 for( int i = 0; i < 4; i++){
-                    if ( ersterStein == (*this(c,r-i) ) count++;
+                    if ( ersterStein == (*this)(c,r-i) ) count++;
                 }
                 switch (count){
                     case 1:
@@ -320,15 +314,14 @@ double feldabschnitt( size_t c, size_t r, int type)
                 break;
         case 2: //DiagR
             if(c >= cols - 3 || r >= cols - 3 ) std::cout << "kein möglicher feldabschnitt. 1" << std::endl;
-            vector <int> vec = {(*this)(c,r),(*this)(c+1,r+1),(*this)(c+2,r+2),(*this)(c+3,r+3)};
-            bool alleGleich = alleGleich(vec);
-            if( alleGleich && vec[0] == 0) return 0.
+            vec = {(*this)(c,r),(*this)(c+1,r+1),(*this)(c+2,r+2),(*this)(c+3,r+3)};
+            if( alleGleich(vec) && vec[0] == 0) return 0.;
             for( int i = 0; i < 4; i++){
-                if ( (*this)(c+i,r+i) !=0 && ersterStein == -1 ) ersterStein = (*this)(c+i,r+i);
-                if( (*this(c+i,r+i) != 0)  && ersterStein != (*this(c+i,r+i)) return 0.;
+                if ( ((*this)(c+i,r+i) !=0) && (ersterStein == -1 )) ersterStein = (*this)(c+i,r+i);
+                if( ((*this)(c+i,r+i) != 0)  && (ersterStein != (*this)(c+i,r+i))) return 0.;
             }
             for( int i = 0; i < 4; i++){
-                if ( ersterStein == (*this(c+i,r+i) ) count++;
+                if ( ersterStein == (*this)(c+i,r+i) ) count++;
             }
             switch (count){
                 case 1:
@@ -346,15 +339,14 @@ double feldabschnitt( size_t c, size_t r, int type)
                 }
         case 3: //DiagL
             if(c >= cols - 3 || r < 3 ) std::cout << "kein möglicher feldabschnitt. 1" << std::endl;
-            vector <int> vec = {(*this)(c,r),(*this)(c+1,r-1),(*this)(c+2,r-2),(*this)(c+3,r-3)};
-            bool alleGleich = alleGleich(vec);
-            if( alleGleich && vec[0] == 0) return 0.
+            vec = {(*this)(c,r),(*this)(c+1,r-1),(*this)(c+2,r-2),(*this)(c+3,r-3)};
+            if( alleGleich(vec) && vec[0] == 0) return 0.;
             for( int i = 0; i < 4; i++){
-                if ( (*this)(c+i,r-i) !=0 && ersterStein == -1 ) ersterStein = (*this)(c+i,r-i);
-                if( (*this(c+i,r-i) != 0)  && ersterStein != (*this(c+i,r-i)) return 0.;
+                if (( (*this)(c+i,r-i)) !=0 && (ersterStein == -1)) ersterStein = (*this)(c+i,r-i);
+                if( ((*this)(c+i,r-i) != 0)  && (ersterStein != (*this)(c+i,r-i))) return 0.;
             }
             for( int i = 0; i < 4; i++){
-                if ( ersterStein == (*this(c+i,r-i) ) count++;
+                if ( ersterStein == (*this)(c+i,r-i) ) count++;
             }
             switch (count){
                 case 1:
@@ -372,4 +364,7 @@ double feldabschnitt( size_t c, size_t r, int type)
             }
     }
 }
+int main(){
+    return 0;
+};
 
