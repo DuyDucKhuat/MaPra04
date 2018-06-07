@@ -16,8 +16,11 @@
 Spielbrett::Spielbrett(size_t cols, size_t rows){
     std::vector<int> vec(cols*rows,0);
     Brett = vec;
+
     std::vector<size_t> vec2(cols,0);
     Stand = vec2;
+    this->cols = cols;
+    this->rows = rows;
 }
 
 // ============================================================================================
@@ -25,16 +28,32 @@ Spielbrett::Spielbrett(size_t cols, size_t rows){
 // ============================================================================================
 
 //setzt den Zug und aktualisiert Stand[col]. Gibt an, ob jemand gewonnen hat
-void Spielbrett::zug(size_t col, size_t spieler){
-    if (Stand[col] == rows){
-        std::cout << " ungültiger Zug, bitte wähle eine andere Spalte, Spalte ist bereits voll " << std::endl;
-    }else{
-        if ( spieler == 1){
-            Brett[col*rows + Stand[col]] = 1;
-        }else if( spieler == 2){
-            Brett[col*rows + Stand[col]] = 2;
+bool Spielbrett::BrettVoll(){
+    bool voll = true;
+    for (int i = 0 ; i < cols ; i++){
+        if (Stand[i] < rows) voll = false;
+    }
+    return voll;
+}
+void Spielbrett::zug(size_t col, size_t spieler, int& weWin ){
+    if ( col >= cols || col < 0 ) std::cout << "ungültige Spalte" << std::endl;
+    else{
+        if (Stand[col] == rows){
+            std::cout << Stand[col] << " " << rows << std::endl;
+            std::cout << " ungültiger Zug, bitte wähle eine andere Spalte, Spalte ist bereits voll " << std::endl;
+        }else{
+            if ( spieler == 1){
+                Brett[col*rows + Stand[col]] = 1;
+            }else if( spieler == 2){
+                Brett[col*rows + Stand[col]] = 2;
+            }
+            Stand[col]++; //aktualisiere Stand.
+            if ( checkLine(0,col, Stand[col]-1 ) || checkLine(1,col, Stand[col]-1 )|| checkLine(2,col,  Stand[col]-1 ))
+            {
+                if ( spieler ==1) weWin = 1;
+                else weWin = -1;
+            }
         }
-        Stand[col]++; //aktualisiere Stand.
     }
 }
 
@@ -44,7 +63,10 @@ int& Spielbrett::operator () (size_t c, size_t r) //Zugriffsoperator auf das Bre
 {
     return Brett[c*rows+ r];
 }
-
+int Spielbrett::operator ()  (size_t c, size_t r) const
+{
+    return Brett[c*rows+ r];
+}
 
 
 
@@ -154,7 +176,7 @@ bool Spielbrett::checkLine(int type, size_t c, size_t r)
 //##############################################################################################################
 //              Maximumalgorithmus
 //##################################################################################################################
-double Spielbrett::wertung(size_t c){
+double Spielbrett::wertung(){
     double res = 0;
     for ( int i = 0; i < cols-3 ; i++){ //vertikal
         for ( int j = 0; j < rows; j++){
@@ -168,11 +190,12 @@ double Spielbrett::wertung(size_t c){
 }
 size_t Spielbrett::nächsterZug(){ //für Spieler 1
     size_t res;
-    maxAlgorithmus (4,res);
+    std::cout <<maxAlgorithmus (4,res) << std::endl;
     return res;
 }
-size_t Spielbrett::maxAlgorithmus(int recursion, size_t& maxI)
+double Spielbrett::maxAlgorithmus(int recursion, size_t& maxI)
 {
+
     double heur;
     double max = -1.;
     for ( size_t i = 0; i < cols; i++){
@@ -183,45 +206,57 @@ size_t Spielbrett::maxAlgorithmus(int recursion, size_t& maxI)
                 heur = 1.;
             }
             else if(umgebungNull(i)){
-                heur =0.;
+                heur = 0.;
             }else{
                 if ( recursion > 1) heur = minAlgorithmus(recursion - 1, maxI);
-                else heur = wertung(i);
+                else {heur = wertung();}
             }
-            (*this)(i,Stand[i]) = 0;
             Stand[i]--;
+            (*this)(i,Stand[i]) = 0;
         }
         if (heur > max){
             max = heur;
             maxI = i;
         }
+
     }
+
+
     return max;
 }
 
-size_t Spielbrett::minAlgorithmus(int recursion, size_t& minI)
+double Spielbrett::minAlgorithmus(int recursion, size_t& minI)
 {
+
     double heur;
     double min = 2.;
     for ( size_t i = 0; i < cols; i++){
+
         if (Stand[i] != rows){
             (*this)(i,Stand[i]) = 2;
             Stand[i]++;
             if(checkLine(0,i,Stand[i]-1) || checkLine(1,i,Stand[i]-1) || checkLine(2,i,Stand[i]-1)){
-                heur = -.1;
+                heur = -1.;
             }
             else{
                 if ( recursion > 1) heur = maxAlgorithmus(recursion - 1, minI);
-                else heur = wertung(i);
+                else {heur = wertung();
+
+                }
             }
             Stand[i]--;
             (*this)(i,Stand[i]) = 0;
         }
+
+
         if (heur < min){
             min = heur;
             minI = i;
         }
+
     }
+
+    
     return min;
 }
 
@@ -231,7 +266,8 @@ size_t Spielbrett::minAlgorithmus(int recursion, size_t& minI)
 //##################################################################################################################
 
 bool Spielbrett::umgebungNull(size_t c){
-    size_t r = Stand[c-1];
+
+    size_t r = Stand[c]-1;
     std::vector <int> Umgebung = {zähleVert(c,r),zähleHo(c,r),zähleDiagR(c,r),zähleDiagL(c,r)}; // enthält die Anzahl der gleichfarbigen direkten Nachbarsteine ( direkt heißt, es gibt keine dazwischenliegenden Steine)
     return ((Umgebung[0] < 2) && (Umgebung[1] <2) && (Umgebung[2] <2) && (Umgebung[3]<2));
 }
@@ -251,6 +287,7 @@ bool Spielbrett::alleGleich (std::vector <T> Werte){
 
 double Spielbrett::feldabschnitt( size_t c, size_t r, int type)
 {
+
     int ersterStein = -1; // defaultWert
     int count = 0;
     std::vector <int> vec;
@@ -273,21 +310,21 @@ double Spielbrett::feldabschnitt( size_t c, size_t r, int type)
             }
             switch (count){
                 case 1:
-                    if( ersterStein ==1) return 0.1;
-                    else return -0.1;
+                    if( ersterStein ==1) return 0.001;
+                    else return -0.001;
                     break;
                 case 2:
-                    if( ersterStein ==1) return 0.3;
-                    else return -0.3;
+                    if( ersterStein ==1) return 0.01;
+                    else return -0.01;
                     break;
                 case 3:
-                    if( ersterStein ==1) return 0.7;
-                    else return -0.7;
+                    if( ersterStein ==1) return 0.05;
+                    else return -0.05;
                     break;
             }
             break;
         case 1: // horizontal
-                if( r >= 3) std::cout << "kein möglicher feldabschnitt. 1" << std::endl;
+                if( r < 3) std::cout << "kein möglicher feldabschnitt. 1" << std::endl;
                 vec = {(*this)(c,r),(*this)(c,r-1),(*this)(c,r-2),(*this)(c,r-3)};
                 if( alleGleich(vec) && vec[0] == 0) return 0.;
                 for( int i = 0; i < 4; i++){
@@ -299,16 +336,15 @@ double Spielbrett::feldabschnitt( size_t c, size_t r, int type)
                 }
                 switch (count){
                     case 1:
-                        if( ersterStein ==1) return 0.1;
-                        else return -0.1;
+                        return 0.;
                         break;
                     case 2:
-                        if( ersterStein ==1) return 0.3;
-                        else return -0.3;
+                        if( ersterStein ==1) return 0.01;
+                        else return -0.01;
                         break;
                     case 3:
-                        if( ersterStein ==1) return 0.7;
-                        else return -0.7;
+                        if( ersterStein ==1) return 0.05;
+                        else return -0.05;
                         break;
                 }
                 break;
@@ -325,16 +361,15 @@ double Spielbrett::feldabschnitt( size_t c, size_t r, int type)
             }
             switch (count){
                 case 1:
-                    if( ersterStein ==1) return 0.1;
-                    else return -0.1;
+                    return 0.;
                     break;
                 case 2:
-                    if( ersterStein ==1) return 0.3;
-                    else return -0.3;
+                    if( ersterStein ==1) return 0.01;
+                    else return -0.01;
                     break;
                 case 3:
-                    if( ersterStein ==1) return 0.7;
-                    else return -0.7;
+                    if( ersterStein ==1) return 0.05;
+                    else return -0.05;
                     break;
                 }
         case 3: //DiagL
@@ -350,21 +385,52 @@ double Spielbrett::feldabschnitt( size_t c, size_t r, int type)
             }
             switch (count){
                 case 1:
-                    if( ersterStein ==1) return 0.1;
-                    else return -0.1;
+                    return 0.;
                     break;
                 case 2:
-                    if( ersterStein ==1) return 0.3;
-                    else return -0.3;
+                    if( ersterStein ==1) return 0.001;
+                    else return -0.001;
                     break;
                 case 3:
-                    if( ersterStein ==1) return 0.7;
-                    else return -0.7;
+                    if( ersterStein ==1) return 0.05;
+                    else return -0.05;
                     break;
             }
     }
 }
+void Spielbrett::anzeige(){
+    for (int i = 0; i <rows ; i++){
+        for( int j = 0; j < cols ; j++){
+            std::cout << (*this)(j,7-i) << " ";
+        }
+        std::cout << "\n";
+    }
+}
+void spiele(Spielbrett& A){
+    bool b = true;
+    size_t c, c2;
+    while (b){
+        for (int i = 0; i <A.rows ; i++){
+            for( int j = 0; j < A.cols ; j++){
+                std::cout << A(j,7-i) << " ";
+            }
+            std::cout << "\n";
+        }
+    std::cout << A.nächsterZug() << std::endl;
+    std::cin >> c  >> c2  >> b;
+        bool win;
+    A.zug(c,1,win);
+    A.zug(c2,2,win);
+    
+    }
+        
+        
+}
 int main(){
+    Spielbrett A(10,8);
+
+
+    spiele(A);
     return 0;
 };
 

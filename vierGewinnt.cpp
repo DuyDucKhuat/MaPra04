@@ -4,12 +4,13 @@
 #include <iostream>
 #include <random>
 #include "unit.h"
+#include "Spielbrett.h"
 
 void NetzwerkMain();
 
 // ...
 
-// const unsigned int Schwierigkeitsgrad = 0;
+ const unsigned int Schwierigkeitsgrad = 4;
 
 enum Feld
 { leer, gelb, rot };
@@ -20,18 +21,25 @@ int main()
 {
     int Zug, Gegenzug;
 
+    Start(Schwierigkeitsgrad);
     // Netzwerkspiel? Rufe NetzwerkMain() auf.
-
-// ...
-
-//    Start(Schwierigkeitsgrad);
-
-    for(unsigned int Spiel = 1; Spiel <= AnzahlSpiele; Spiel++)
+    for (int Spiel = 1; Spiel <= AnzahlSpiele; Spiel++)
     {
+        Spielbrett Brett(AnzahlZeilen, AnzahlSpalten);
+        if ( Spiel %2 == 0){
+            Gegenzug = naechsterZug(-1);
+            Brett.zug(Gegenzug, 2);
+        }
 
-// ...
-
+        while( true) {
+            Zug = Brett.nächsterZug(); //Zug der Heuristik
+            Brett.zug(Zug,1);
+            Gegenzug = naechsterZug(Zug);
+            if( Gegenzug < 0) break;
+            Brett.zug(Gegenzug,2);
+        }
     }
+    
 
     return 0;
 }
@@ -49,6 +57,70 @@ enum class SpielStatus {
 SpielStatus Netzwerkspiel( Feld MeineFarbe ) {
 
     // TODO Implementiere Netzwerkprotokoll
+    Spielbrett Brett( (size_t AnzahlSpalten, size_t AnzahlZeilen));
+    int Zug, Gegenzug;
+    int won = 0;
+    
+    if ( MeineFarbe == gelb){
+        Zug = Brett.nächsterZug();
+        Brett.zug(Zug,1,won);
+        if(!SendeZug(Zug))
+            return SpielStatus::Verbindungsfehler;
+    }
+    while (true){
+        Gegenzug = EmpfangeZug();
+        if (Gegenzug == SPIELENDE){
+            SendeZug(SPIELENDE);
+            if ( won == -1){
+                return SpielStatus::Niederlage;
+            }
+            else if ( Brett.BrettVoll() && won == 0) {
+                return SpielStatus::Unentschieden;
+            }else{
+                std::cout << " Gegner übergibt SPIELENDE" << std::endl;
+                return SpielStatus::Verbindungsfehler;
+            }
+        }else if ( Gegenzug == VERBINDUNGSFEHLER){
+            cout << "Gegner übergibt VERBINDUNGSFEHLER" << std::endl;
+            return SpielStatus::Verbindungsfehler;
+        }else{
+            Brett.zug ( Gegenzug, 2 , won);
+            
+            //Endergebnis?
+            if ( won == -1 ){
+                SendeZug(SPIELENDE);
+                return SpielStatus::Niederlage;
+            }
+            else if ( won  == 0 && Brett.BrettVoll()){
+                SendeZug(SPIELENDE);
+                return SpielStatus::Unentschieden;
+                
+            }
+            //Gegenzug gesetzt und Spiel geht weiter.
+            Zug = Brett.nächsterZug();
+            if(!SendeZug(Zug)) return SpielStatus::Verbindungsfehler;
+            
+            Brett.zug ( Zug, 1, won);
+            
+            
+            //Endergebnis?
+            if ( won == 1) {
+                SendeZug(SPIELENDE);
+                return SpielStatus::Sieg;
+            }
+            if ( won == 0 & Brett.BrettVoll()){
+                SendeZug(SPIELENDE);
+                return SpielStatus::Unentschieden;
+            }
+            
+            
+
+        }
+        
+    
+    }
+    
+    
     
     return SpielStatus::Verbindungsfehler;
 }
