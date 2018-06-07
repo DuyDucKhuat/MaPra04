@@ -15,7 +15,7 @@
 class Spielbrett{
     public:
     std::vector<int> Brett;
-    std::vector<size_t> Stand; //Stand[col] enthält den Stand (Höhe) der Spalte col.
+    std::vector<size_t> Stand; //Stand[col] enthaelt den Stand (Hoehe) der Spalte col.
     size_t cols, rows;
 
     
@@ -24,16 +24,16 @@ class Spielbrett{
     int& operator() (size_t col, size_t r);
     int operator ()  (size_t c, size_t r) const;
     bool BrettVoll();
-    void zug(size_t col, size_t spieler, int& weWin); //setzt den Zug falls möglich, aktualisiert den Stand.
+    void zug(size_t col, size_t spieler, int& weWin); //setzt den Zug falls moeglich, aktualisiert den Stand.
     
-    int zähleVert(size_t c, size_t r);
-    int zähleHo(size_t c, size_t r);
-    int zähleDiagR( size_t c, size_t r);
-    int zähleDiagL( size_t c, size_t r);
+    int zaehleVert(size_t c, size_t r);
+    int zaehleHo(size_t c, size_t r);
+    int zaehleDiagR( size_t c, size_t r);
+    int zaehleDiagL( size_t c, size_t r);
     bool checkLine(int type, size_t c, size_t r);
     
     double wertung();
-    size_t nächsterZug();
+    size_t naechsterZug();
     double maxAlgorithmus(int recursion, size_t& maxI);
     double minAlgorithmus(int recursion, size_t& minI);
     

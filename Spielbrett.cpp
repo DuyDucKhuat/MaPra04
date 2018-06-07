@@ -36,11 +36,11 @@ bool Spielbrett::BrettVoll(){
     return voll;
 }
 void Spielbrett::zug(size_t col, size_t spieler, int& weWin ){
-    if ( col >= cols) std::cout << "ungültige Spalte" << std::endl;
+    if ( col >= cols) std::cout << "ungueltige Spalte" << std::endl;
     else{
         if (Stand[col] == rows){
             std::cout << Stand[col] << " " << rows << std::endl;
-            std::cout << " ungültiger Zug, bitte wähle eine andere Spalte, Spalte ist bereits voll " << std::endl;
+            std::cout << " ungueltiger Zug, bitte wähle eine andere Spalte, Spalte ist bereits voll " << std::endl;
         }else{
             if ( spieler == 1){
                 Brett[col*rows + Stand[col]] = 1;
@@ -74,7 +74,7 @@ int Spielbrett::operator ()  (size_t c, size_t r) const
 //                      CHECK LINE
 // ############################################################################################################
 
-int Spielbrett::zähleVert(size_t c, size_t r) // zählt in beide Richtungen vertikal.
+int Spielbrett::zaehleVert(size_t c, size_t r) // zählt in beide Richtungen vertikal.
 {
     size_t i = r;
     int sum = 1;
@@ -92,7 +92,7 @@ int Spielbrett::zähleVert(size_t c, size_t r) // zählt in beide Richtungen ver
     }
     return sum;
 }
-int Spielbrett::zähleHo(size_t c, size_t r) // zählt in beide Richtungen horizontal.
+int Spielbrett::zaehleHo(size_t c, size_t r) // zählt in beide Richtungen horizontal.
 {
     size_t i = c;
     int sum = 1;
@@ -112,7 +112,7 @@ int Spielbrett::zähleHo(size_t c, size_t r) // zählt in beide Richtungen horiz
     return sum;
 }
 
-int Spielbrett::zähleDiagR( size_t c, size_t r) //Diagonale in beide Richtungen von unten links nach oben rechts.
+int Spielbrett::zaehleDiagR( size_t c, size_t r) //Diagonale in beide Richtungen von unten links nach oben rechts.
 
 {
     int player = (*this)(c,r);
@@ -132,7 +132,7 @@ int Spielbrett::zähleDiagR( size_t c, size_t r) //Diagonale in beide Richtungen
     return sum;
 }
 
-int Spielbrett::zähleDiagL( size_t c, size_t r) // Diagonale in beide Richtungen von oben links nach unten rechts.
+int Spielbrett::zaehleDiagL( size_t c, size_t r) // Diagonale in beide Richtungen von oben links nach unten rechts.
 {
     size_t d =0;
     int player = (*this)(c,r);
@@ -157,15 +157,15 @@ bool Spielbrett::checkLine(int type, size_t c, size_t r)
     if( player == 0) return false;
     switch (type){
         case 0:  //vertikal
-            if (zähleVert(c,r) >= 4) {return true;}
+            if (zaehleVert(c,r) >= 4) {return true;}
             else {return false;}
             break;
         case 1: //horizontal
-            if( zähleHo(c,r) >= 4){return true;}
+            if( zaehleHo(c,r) >= 4){return true;}
             else {return false;}
             break;
         case 2://diagonal
-            if( zähleDiagR(c,r) >= 4 || zähleDiagL(c,r) >= 4){return true;}
+            if( zaehleDiagR(c,r) >= 4 || zaehleDiagL(c,r) >= 4){return true;}
             else {return false;}
             break;
     }
@@ -189,7 +189,7 @@ double Spielbrett::wertung(){
     }
     return res;
 }
-size_t Spielbrett::nächsterZug(){ //für Spieler 1
+size_t Spielbrett::naechsterZug(){ //für Spieler 1
     size_t res;
     std::cout <<maxAlgorithmus (4,res) << std::endl;
     return res;
@@ -269,7 +269,7 @@ double Spielbrett::minAlgorithmus(int recursion, size_t& minI)
 bool Spielbrett::umgebungNull(size_t c){
 
     size_t r = Stand[c]-1;
-    std::vector <int> Umgebung = {zähleVert(c,r),zähleHo(c,r),zähleDiagR(c,r),zähleDiagL(c,r)}; // enthält die Anzahl der gleichfarbigen direkten Nachbarsteine ( direkt heißt, es gibt keine dazwischenliegenden Steine)
+    std::vector <int> Umgebung = {zaehleVert(c,r),zaehleHo(c,r),zaehleDiagR(c,r),zaehleDiagL(c,r)}; // enthält die Anzahl der gleichfarbigen direkten Nachbarsteine ( direkt heißt, es gibt keine dazwischenliegenden Steine)
     return ((Umgebung[0] < 2) && (Umgebung[1] <2) && (Umgebung[2] <2) && (Umgebung[3]<2));
 }
 //überprüft, ob alle Werte gleich sind, in diesem Fall wird zufällig ein Zug gewählt.
@@ -418,7 +418,7 @@ void spiele(Spielbrett& A){
             }
             std::cout << "\n";
         }
-    std::cout << A.nächsterZug() << std::endl;
+    std::cout << A.naechsterZug() << std::endl;
     std::cin >> c  >> c2  >> b;
     int win;
     A.zug(c,1,win);
