@@ -50,8 +50,14 @@ void Spielbrett::zug(size_t col, size_t spieler, int& weWin ){
             Stand[col]++; //aktualisiere Stand.
             if ( checkLine(0,col, Stand[col]-1 ) || checkLine(1,col, Stand[col]-1 )|| checkLine(2,col,  Stand[col]-1 ))
             {
-                if ( spieler ==1) weWin = 1;
-                else weWin = -1;
+                if ( spieler ==1) {weWin = 1;
+                    std::cout << "Spieler 1 gewinnt" << std::endl;
+                }
+                    
+                else{
+                    std::cout << "Spieler 2 gewinnt" << std::endl;
+                    weWin = -1;
+                }
             }
         }
     }
@@ -426,7 +432,6 @@ void spiele(Spielbrett& A){
     int win;
     A.zug(c,1,win);
     A.zug(c2,2,win);
-    
     }
         
         
