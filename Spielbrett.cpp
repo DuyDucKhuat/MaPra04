@@ -36,7 +36,7 @@ bool Spielbrett::BrettVoll(){
     return voll;
 }
 void Spielbrett::zug(size_t col, size_t spieler, int& weWin ){
-    if ( col >= cols || col < 0 ) std::cout << "ungültige Spalte" << std::endl;
+    if ( col >= cols) std::cout << "ungültige Spalte" << std::endl;
     else{
         if (Stand[col] == rows){
             std::cout << Stand[col] << " " << rows << std::endl;
@@ -169,6 +169,7 @@ bool Spielbrett::checkLine(int type, size_t c, size_t r)
             else {return false;}
             break;
     }
+    return false;
 }
 
 
@@ -397,6 +398,7 @@ double Spielbrett::feldabschnitt( size_t c, size_t r, int type)
                     break;
             }
     }
+    return 0.;
 }
 void Spielbrett::anzeige(){
     for (int i = 0; i <rows ; i++){
@@ -418,7 +420,7 @@ void spiele(Spielbrett& A){
         }
     std::cout << A.nächsterZug() << std::endl;
     std::cin >> c  >> c2  >> b;
-        bool win;
+    int win;
     A.zug(c,1,win);
     A.zug(c2,2,win);
     
