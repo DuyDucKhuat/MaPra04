@@ -11,6 +11,8 @@
 #include <iostream>
 #include <float.h>
 #include <stdlib.h>
+#include <random>
+#include <time.h>
 
 class Spielbrett{
     public:
