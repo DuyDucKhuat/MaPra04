@@ -191,6 +191,7 @@ double Spielbrett::wertung(){
 }
 size_t Spielbrett::naechsterZug(){ //für Spieler 1
     size_t res;
+    srand (time(NULL));
     std::cout <<maxAlgorithmus (4,res) << std::endl;
     return res;
 }
@@ -219,7 +220,7 @@ double Spielbrett::maxAlgorithmus(int recursion, size_t& maxI)
             max = heur;
             maxI = i;
         }
-
+        if ( maxI == 0) maxI = std::rand() % cols;
     }
 
 
@@ -254,6 +255,8 @@ double Spielbrett::minAlgorithmus(int recursion, size_t& minI)
             min = heur;
             minI = i;
         }
+        if ( minI == 0) minI = std::rand() % cols;
+
 
     }
 
