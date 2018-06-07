@@ -19,7 +19,7 @@ enum Feld
 
 int main()
 {
-    int Zug, Gegenzug;
+    int Zug, Gegenzug, won ;
 
     Start(Schwierigkeitsgrad);
     // Netzwerkspiel? Rufe NetzwerkMain() auf.
@@ -27,17 +27,31 @@ int main()
     {
         Spielbrett Brett(AnzahlZeilen, AnzahlSpalten);
         if ( Spiel %2 == 0){
-            Gegenzug = naechsterZug(-1);
-            Brett.zug(Gegenzug, 2);
+            Gegenzug = NaechsterZug(-1);
+            Brett.zug(Gegenzug, 2, won);
         }
 
         while( true) {
-            Zug = Brett.nächsterZug(); //Zug der Heuristik
-            Brett.zug(Zug,1);
-            Gegenzug = naechsterZug(Zug);
+            Zug = Brett.naechsterZug(); //Zug der Heuristik
+            Brett.zug(Zug,1,won);
+            Gegenzug = NaechsterZug(Zug);
+	    if( won == 1){
+		std::cout << "gewonnen :)" << std::endl;
+		break;
+		}		
             if( Gegenzug < 0) break;
-            Brett.zug(Gegenzug,2);
+            Brett.zug(Gegenzug,2, won);
+		if(won ==-1){
+			std::cout <<"verloren :(" << std::endl;
+			 break;
+		}
+		else if(won==0){
+			std::cout <<"unentschieden" << std::endl;
+			break;
+		}
         }
+	
+
     }
     
 
@@ -57,12 +71,13 @@ enum class SpielStatus {
 SpielStatus Netzwerkspiel( Feld MeineFarbe ) {
 
     // TODO Implementiere Netzwerkprotokoll
-    Spielbrett Brett( (size_t AnzahlSpalten, size_t AnzahlZeilen));
-    int Zug, Gegenzug;
+    Spielbrett Brett((size_t) AnzahlSpalten, (size_t) AnzahlZeilen);
+    int Zug;
+    int  Gegenzug;
     int won = 0;
     
     if ( MeineFarbe == gelb){
-        Zug = Brett.nächsterZug();
+        Zug = Brett.naechsterZug();
         Brett.zug(Zug,1,won);
         if(!SendeZug(Zug))
             return SpielStatus::Verbindungsfehler;
@@ -81,7 +96,7 @@ SpielStatus Netzwerkspiel( Feld MeineFarbe ) {
                 return SpielStatus::Verbindungsfehler;
             }
         }else if ( Gegenzug == VERBINDUNGSFEHLER){
-            cout << "Gegner übergibt VERBINDUNGSFEHLER" << std::endl;
+            std::cout << "Gegner übergibt VERBINDUNGSFEHLER" << std::endl;
             return SpielStatus::Verbindungsfehler;
         }else{
             Brett.zug ( Gegenzug, 2 , won);
@@ -97,7 +112,7 @@ SpielStatus Netzwerkspiel( Feld MeineFarbe ) {
                 
             }
             //Gegenzug gesetzt und Spiel geht weiter.
-            Zug = Brett.nächsterZug();
+            Zug = Brett.naechsterZug();
             if(!SendeZug(Zug)) return SpielStatus::Verbindungsfehler;
             
             Brett.zug ( Zug, 1, won);

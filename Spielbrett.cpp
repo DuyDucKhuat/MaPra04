@@ -428,11 +428,3 @@ void spiele(Spielbrett& A){
         
         
 }
-int main(){
-    Spielbrett A(10,8);
-
-
-    spiele(A);
-    return 0;
-};
-
