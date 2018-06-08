@@ -10,7 +10,7 @@ void NetzwerkMain();
 
 // ...
 
- const unsigned int Schwierigkeitsgrad = 4;
+ const unsigned int Schwierigkeitsgrad = 1;
 
 enum Feld
 { leer, gelb, rot };
@@ -25,7 +25,8 @@ int main()
     // Netzwerkspiel? Rufe NetzwerkMain() auf.
     for (int Spiel = 1; Spiel <= AnzahlSpiele; Spiel++)
     {
-        Spielbrett Brett(AnzahlZeilen, AnzahlSpalten);
+ 	Spielbrett Brett((size_t)AnzahlSpalten, (size_t) AnzahlZeilen);
+	won = 2;
         if ( Spiel %2 == 0){
             Gegenzug = NaechsterZug(-1);
             Brett.zug(Gegenzug, 2, won);
@@ -34,6 +35,7 @@ int main()
         while( true) {
             Zug = Brett.naechsterZug(); //Zug der Heuristik
             Brett.zug(Zug,1,won);
+            Brett.anzeige();
             Gegenzug = NaechsterZug(Zug);
 	    if( won == 1){
 		std::cout << "gewonnen :)" << std::endl;
@@ -54,7 +56,6 @@ int main()
 
     }
     
-
     return 0;
 }
 

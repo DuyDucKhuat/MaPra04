@@ -40,11 +40,11 @@ bool Spielbrett::BrettVoll(){
 void Spielbrett::zug(size_t col, size_t spieler, int& weWin ){
     if ( col >= cols) std::cout << "ungueltige Spalte" << std::endl;
     else{
-     /*   if (Stand[col] == rows){
+        if (Stand[col] == rows){
             std::cout << Stand[col] << " " << rows << std::endl;
             std::cout << " ungueltiger Zug, bitte wähle eine andere Spalte, Spalte ist bereits voll " << std::endl;
-	anzeige();*/
-       // }else{
+	anzeige();
+        }else{
             if ( spieler == 1){
                 (*this)(col,Stand[col]) = 1;
             }else if( spieler == 2){
@@ -62,7 +62,7 @@ void Spielbrett::zug(size_t col, size_t spieler, int& weWin ){
                     weWin = -1;
                 }
             }
-       // }
+        }
     }
 }
 
@@ -114,7 +114,7 @@ int Spielbrett::zaehleHo(size_t c, size_t r) // zählt in beide Richtungen horiz
         i--;
     }
     i = c;
-    while((*this)(i+1,r) == player && i+1 < cols){
+    while((*this)(i+1,r) == player && i+1 < rows){
         sum++;
         i++;
     }
@@ -202,7 +202,7 @@ size_t Spielbrett::naechsterZug(){ //für Spieler 1
     size_t res;
     srand (time(NULL));
     //maxAlgorithmus(4,res);
-    std::cout << maxAlgorithmus (5,res) << std::endl;
+    std::cout <<maxAlgorithmus (4,res) << std::endl;
     return res;
 }
 double Spielbrett::maxAlgorithmus(int recursion, size_t& maxI)
@@ -214,18 +214,18 @@ double Spielbrett::maxAlgorithmus(int recursion, size_t& maxI)
         if (Stand[i] != rows){
             (*this)(i,Stand[i]) = 1;
             Stand[i]++;
-    //        if(checkLine(0,i,Stand[i]-1) || checkLine(1,i,Stand[i]-1) || checkLine(2,i,Stand[i]-1)){
-      //          heur = 1.;
-            //}
-            //else if(umgebungNull(i)){
-              //  heur = 0.;
-           // }else{
+            if(checkLine(0,i,Stand[i]-1) || checkLine(1,i,Stand[i]-1) || checkLine(2,i,Stand[i]-1)){
+                heur = 1.;
+            }
+            else if(umgebungNull(i)){
+                heur = 0.;
+            }else{
                 if ( recursion > 1) heur = minAlgorithmus(recursion - 1, maxI);
                 else {heur = wertung();}
             }
             Stand[i]--;
             (*this)(i,Stand[i]) = 0;
-      // }
+        }
         if (heur > max){
             max = heur;
             maxI = i;
@@ -247,15 +247,15 @@ double Spielbrett::minAlgorithmus(int recursion, size_t& minI)
         if (Stand[i] != rows){
             (*this)(i,Stand[i]) = 2;
             Stand[i]++;
-      //      if(checkLine(0,i,Stand[i]-1) || checkLine(1,i,Stand[i]-1) || checkLine(2,i,Stand[i]-1)){
-        //        heur = -1.;
-          //  }
-           // else{
+            if(checkLine(0,i,Stand[i]-1) || checkLine(1,i,Stand[i]-1) || checkLine(2,i,Stand[i]-1)){
+                heur = -1.;
+            }
+            else{
                 if ( recursion > 1) heur = maxAlgorithmus(recursion - 1, minI);
-                else heur = wertung();
+                else {heur = wertung();
 
-                
-           // }
+                }
+            }
             Stand[i]--;
             (*this)(i,Stand[i]) = 0;
         }
@@ -324,20 +324,17 @@ double Spielbrett::feldabschnitt( size_t c, size_t r, int type)
             }
             switch (count){
                 case 1:
-                    return 0.;
+                    if( ersterStein ==1) return 0.001;
+                    else return -0.001;
                     break;
                 case 2:
-                    if( ersterStein ==1) return 0.0001;
-                    else return -0.0001;
+                    if( ersterStein ==1) return 0.01;
+                    else return -0.01;
                     break;
                 case 3:
-                    if( ersterStein ==1) return 0.005;
-                    else return -0.005;
+                    if( ersterStein ==1) return 0.05;
+                    else return -0.05;
                     break;
-		case 4:
-		    if (ersterStein == 1) return 1;
-		    else return -1;
-		    break;
             }
             break;
         case 1: // horizontal
@@ -356,17 +353,13 @@ double Spielbrett::feldabschnitt( size_t c, size_t r, int type)
                         return 0.;
                         break;
                     case 2:
-                        if( ersterStein ==1) return 0.0001;
-                        else return -0.0001;
+                        if( ersterStein ==1) return 0.01;
+                        else return -0.01;
                         break;
                     case 3:
-                        if( ersterStein ==1) return 0.005;
-                        else return -0.005;
+                        if( ersterStein ==1) return 0.05;
+                        else return -0.05;
                         break;
-		case 4:
-			if(ersterStein ==1) return 1;
-			else return -1;
-			break;	
                 }
                 break;
         case 2: //DiagR
@@ -384,18 +377,14 @@ double Spielbrett::feldabschnitt( size_t c, size_t r, int type)
                 case 1:
                     return 0.;
                     break;
-                case 2: 
-                    if( ersterStein ==1) return 0.0001;
-                    else return -0.0001;
+                case 2:
+                    if( ersterStein ==1) return 0.01;
+                    else return -0.01;
                     break;
                 case 3:
-                    if( ersterStein ==1) return 0.005;
-                    else return -0.005;
+                    if( ersterStein ==1) return 0.05;
+                    else return -0.05;
                     break;
-                 case 4:
-		 	if(ersterStein ==1) return 1;
-			else return -1;
-			break;
                 }
         case 3: //DiagL
             if(c >= cols - 3 || r < 3 ) std::cout << cols << " zwei " << rows<<  std::endl;
@@ -413,16 +402,13 @@ double Spielbrett::feldabschnitt( size_t c, size_t r, int type)
                     return 0.;
                     break;
                 case 2:
-                    if( ersterStein ==1) return 0.0001;
-                    else return -0.0001;
+                    if( ersterStein ==1) return 0.001;
+                    else return -0.001;
                     break;
                 case 3:
-                    if( ersterStein ==1) return 0.005;
-                    else return -0.005;
+                    if( ersterStein ==1) return 0.05;
+                    else return -0.05;
                     break;
-		case 4:
-		    if(ersterStein ==1) return 1;
-		    else return -1;
             }
     }
     return 0.;
